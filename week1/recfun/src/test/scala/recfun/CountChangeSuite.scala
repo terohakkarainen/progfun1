@@ -2,7 +2,6 @@ package recfun
 
 import org.scalatest.FunSuite
 
-
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -25,5 +24,33 @@ class CountChangeSuite extends FunSuite {
 
   test("countChange: unsorted CHF") {
     assert(countChange(300, List(500, 5, 50, 100, 20, 200, 10)) === 1022)
+  }
+
+  test("no money, nothing to change") {
+    assert(countChange(0, List(1, 2)) === 0)
+  }
+
+  test("no coins, cannot change") {
+    assert(countChange(3, List()) === 0)
+  }
+
+  test("negative money is not accepted") {
+    intercept[AssertionError] {
+      countChange(-1, List(1, 2))
+    }
+  }
+
+  test("zero or negative coins not accepted") {
+    intercept[AssertionError] {
+      countChange(1, List(0))
+    }
+    intercept[AssertionError] {
+      countChange(1, List(-1))
+    }
+  }
+
+  test("additional tests") {
+    assert(countChange(1, List(1)) === 1)
+    assert(countChange(1, List(2)) === 0)
   }
 }
