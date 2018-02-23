@@ -138,6 +138,7 @@ class FunSetSuite extends FunSuite {
       val shouldContainOne = diff(s1, s2)
       assert(contains(shouldContainOne, 1))
       assert(!contains(shouldContainOne, 2))
+      assert(!contains(shouldContainOne, 0))
     }
   }
 
