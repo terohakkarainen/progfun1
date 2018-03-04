@@ -95,7 +95,7 @@ class TweetSetSuite extends FunSuite {
     }
   }
 
-  test("most retweeted can be found in large set") {
+  test("most retweeted can be found in larger set") {
     new TestSets {
       assert(set5.mostRetweeted.retweets === 20)
     }
@@ -103,18 +103,61 @@ class TweetSetSuite extends FunSuite {
 
   test("most retweeted not available in empty set") {
     new TestSets {
-      val emptySet = new Empty
       intercept[NoSuchElementException] {
-        emptySet.mostRetweeted
+        set1.mostRetweeted
       }
     }
   }
 
-  //  test("descending: set5") {
-  //    new TestSets {
-  //      val trends = set5.descendingByRetweet
-  //      assert(!trends.isEmpty)
-  //      assert(trends.head.user == "a" || trends.head.user == "b")
-  //    }
-  //  }
+  test("descending: empty set") {
+    new TestSets {
+      assert(set1.descendingByRetweet.isEmpty)
+    }
+  }
+
+  test("descending: one element set") {
+    new TestSets {
+      val list = set2.descendingByRetweet
+      assert(list.head.retweets === 20)
+      assert(list.tail.isEmpty)
+    }
+  }
+
+  test("descending: two element set") {
+    new TestSets {
+      val list = set3.descendingByRetweet
+      assert(list.head.retweets === 20)
+      assert(list.tail.head.retweets === 20)
+      assert(list.tail.tail.isEmpty)
+    }
+  }
+
+  test("descending: larger set") {
+    new TestSets {
+      val most = new Tweet("foo", "bar", 100)
+      val largerSet = set5.incl(most)
+      val list = largerSet.descendingByRetweet
+      assert(list.head.retweets === 100)
+      assert(list.tail.head.retweets === 20)
+      assert(list.tail.tail.head.retweets === 20)
+      assert(list.tail.tail.tail.head.retweets === 9)
+      assert(list.tail.tail.tail.tail.head.retweets === 7)
+      assert(list.tail.tail.tail.tail.tail.isEmpty)
+    }
+  }
+
+  test("descending: set5") {
+    new TestSets {
+      val list = set5.descendingByRetweet
+      assert(!list.isEmpty)
+      assert(list.head.user == "a" || list.head.user == "b")
+    }
+  }
+
+  test("googleTweets & appleTweets: something got") {
+    new TestSets {
+      assert(size(GoogleVsApple.googleTweets) > 0)
+      assert(size(GoogleVsApple.appleTweets) > 0)
+    }
+  }
 }

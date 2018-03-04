@@ -1,7 +1,5 @@
 package objsets
 
-import TweetReader._
-
 /**
   * A class to represent tweets.
   */
@@ -76,7 +74,18 @@ abstract class TweetSet {
     * Question: Should we implment this method here, or should it remain abstract
     * and be implemented in the subclasses?
     */
-  def descendingByRetweet: TweetList = ???
+  def descendingByRetweet: TweetList = {
+    def loop(set: TweetSet, acc: TweetList): TweetList = {
+      try {
+        val mostRetweetedInSet = set.mostRetweeted
+        new Cons(mostRetweetedInSet, set.remove(mostRetweetedInSet).descendingByRetweet)
+      } catch {
+        case e: NoSuchElementException => acc
+      }
+    }
+
+    loop(this, Nil)
+  }
 
   /**
     * Returns a new `TweetSet` which contains all elements of this set, and the
@@ -199,14 +208,17 @@ object GoogleVsApple {
   val google = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
   val apple = List("ios", "iOS", "iphone", "iPhone", "ipad", "iPad")
 
-  lazy val googleTweets: TweetSet = ???
-  lazy val appleTweets: TweetSet = ???
+  def tweetsForKeywords(keywords: List[String]) =
+    TweetReader.allTweets.filter(tw => keywords.exists(kw => tw.text.contains(kw)))
+
+  lazy val googleTweets: TweetSet = tweetsForKeywords(google)
+  lazy val appleTweets: TweetSet = tweetsForKeywords(apple)
 
   /**
     * A list of all tweets mentioning a keyword from either apple or google,
     * sorted by the number of retweets.
     */
-  lazy val trending: TweetList = ???
+  lazy val trending: TweetList = googleTweets.union(appleTweets).descendingByRetweet
 }
 
 object Main extends App {
