@@ -41,7 +41,7 @@ abstract class TweetSet {
     * Question: Can we implment this method here, or should it remain abstract
     * and be implemented in the subclasses?
     */
-  def filter(p: Tweet => Boolean): TweetSet = ???
+  def filter(p: Tweet => Boolean): TweetSet = filterAcc(p, new Empty)
 
   /**
     * This is a helper method for `filter` that propagetes the accumulated tweets.
@@ -54,7 +54,7 @@ abstract class TweetSet {
     * Question: Should we implment this method here, or should it remain abstract
     * and be implemented in the subclasses?
     */
-  def union(that: TweetSet): TweetSet = ???
+  def union(that: TweetSet): TweetSet
 
   /**
     * Returns the tweet from this set which has the greatest retweet count.
@@ -65,7 +65,7 @@ abstract class TweetSet {
     * Question: Should we implment this method here, or should it remain abstract
     * and be implemented in the subclasses?
     */
-  def mostRetweeted: Tweet = ???
+  def mostRetweeted: Tweet
 
   /**
     * Returns a list containing all tweets of this set, sorted by retweet count
@@ -77,10 +77,6 @@ abstract class TweetSet {
     * and be implemented in the subclasses?
     */
   def descendingByRetweet: TweetList = ???
-
-  /**
-    * The following methods are already implemented
-    */
 
   /**
     * Returns a new `TweetSet` which contains all elements of this set, and the
@@ -107,11 +103,8 @@ abstract class TweetSet {
 }
 
 class Empty extends TweetSet {
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = ???
 
-  /**
-    * The following methods are already implemented
-    */
+  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = acc
 
   def contains(tweet: Tweet): Boolean = false
 
@@ -120,15 +113,19 @@ class Empty extends TweetSet {
   def remove(tweet: Tweet): TweetSet = this
 
   def foreach(f: Tweet => Unit): Unit = ()
+
+  def union(that: TweetSet): TweetSet = that
+
+  def mostRetweeted: Tweet = throw new NoSuchElementException()
 }
 
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = ???
-
-  /**
-    * The following methods are already implemented
-    */
+  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = {
+    val filteredFromLeft = left.filterAcc(p, acc)
+    val filteredFromRight = right.filterAcc(p, filteredFromLeft)
+    if (p(elem)) filteredFromRight.incl(elem) else filteredFromRight
+  }
 
   def contains(x: Tweet): Boolean =
     if (x.text < elem.text) left.contains(x)
@@ -141,15 +138,34 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     else this
   }
 
-  def remove(tw: Tweet): TweetSet =
-    if (tw.text < elem.text) new NonEmpty(elem, left.remove(tw), right)
-    else if (elem.text < tw.text) new NonEmpty(elem, left, right.remove(tw))
+  def remove(x: Tweet): TweetSet =
+    if (x.text < elem.text) new NonEmpty(elem, left.remove(x), right)
+    else if (elem.text < x.text) new NonEmpty(elem, left, right.remove(x))
     else left.union(right)
 
   def foreach(f: Tweet => Unit): Unit = {
     f(elem)
     left.foreach(f)
     right.foreach(f)
+  }
+
+  def union(that: TweetSet): TweetSet = {
+    val leftRight = left.union(right)
+    val leftRightThat = leftRight.union(that)
+    leftRightThat.incl(elem)
+  }
+
+  def mostRetweeted: Tweet = {
+    def compareRetweets(tweet: Tweet, set: TweetSet): Tweet = {
+      try {
+        val mostRetweetsInSet = set.mostRetweeted
+        if (mostRetweetsInSet.retweets > tweet.retweets) mostRetweetsInSet else tweet
+      } catch {
+        case e: NoSuchElementException => tweet
+      }
+    }
+
+    compareRetweets(compareRetweets(elem, left), right)
   }
 }
 
