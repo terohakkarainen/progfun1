@@ -158,11 +158,7 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     right.foreach(f)
   }
 
-  def union(that: TweetSet): TweetSet = {
-    val leftRight = left.union(right)
-    val leftRightThat = leftRight.union(that)
-    leftRightThat.incl(elem)
-  }
+  def union(that: TweetSet): TweetSet = left union (right union (that incl elem))
 
   def mostRetweeted: Tweet = {
     def compareRetweets(tweet: Tweet, set: TweetSet): Tweet = {
