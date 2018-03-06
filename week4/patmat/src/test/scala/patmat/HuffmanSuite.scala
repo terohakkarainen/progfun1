@@ -100,11 +100,29 @@ class HuffmanSuite extends FunSuite {
     assert(makeOrderedLeafList(List()) === List())
   }
 
-  //  test("combine of some leaf list") {
-  //    val leaflist = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4))
-  //    assert(combine(leaflist) === List(Fork(Leaf('e', 1), Leaf('t', 2), List('e', 't'), 3), Leaf('x', 4)))
-  //  }
-  //
+  test("is singleton") {
+    new TestTrees {
+      assert(singleton(List(t1)) === true)
+    }
+  }
+
+  test("is not singleton") {
+    new TestTrees {
+      assert(singleton(List(t1, t2)) === false)
+    }
+  }
+
+  test("empty list is not singleton") {
+    new TestTrees {
+      assert(singleton(List()) === false)
+    }
+  }
+
+  test("combine of some leaf list") {
+    val leaflist = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4))
+    assert(combine(leaflist) === List(Fork(Leaf('e', 1), Leaf('t', 2), List('e', 't'), 3), Leaf('x', 4)))
+  }
+
   //  test("decode and encode a very short text should be identity") {
   //    new TestTrees {
   //      assert(decode(t1, encode(t1)("ab".toList)) === "ab".toList)
