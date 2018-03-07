@@ -79,11 +79,11 @@ object Huffman {
     * }
     */
   def times(chars: List[Char]): List[(Char, Int)] =
-    chars.groupBy(c => c)
-      .mapValues(l => l.length)
-      .toSeq
-      .sortBy(_._1)
-      .toList
+    chars.groupBy(c => c)         // Group by char -> map(c -> List(c, c, ...))
+      .mapValues(l => l.length)   // Map values to number of occurrences
+      .toSeq                      // To sequence to get sorting
+      .sortBy(_._1)               // Sort by chars, ascending by default
+      .toList                     // To list as result value
 
   /**
     * Returns a list of `Leaf` nodes for a given frequency table `freqs`.
@@ -93,12 +93,12 @@ object Huffman {
     * of a leaf is the frequency of the character.
     */
   def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = {
-    freqs.groupBy(p => p._1)
-      .mapValues(l => l(0)._2)
-      .toSeq
-      .sortBy(_._2)
-      .toList
-      .map { case (c: Char, w: Int) => new Leaf(c, w) }
+    freqs.groupBy(p => p._1)                            // Group by char -> map(c -> List(c))
+      .mapValues(l => l(0)._2)                          // Map values to weight
+      .toSeq                                            // To sequence to get sorting
+      .sortBy(_._2)                                     // Sort by weight, ascending by default
+      .toList                                           // To list as result value
+      .map { case (c: Char, w: Int) => new Leaf(c, w) } // Pairs to Leafs
   }
 
   /**
