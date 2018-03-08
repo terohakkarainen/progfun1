@@ -119,8 +119,8 @@ class HuffmanSuite extends FunSuite {
   }
 
   test("combine of some leaf list") {
-    val leaflist = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4))
-    assert(combine(leaflist) === List(Fork(Leaf('e', 1), Leaf('t', 2), List('e', 't'), 3), Leaf('x', 4)))
+    val leafList = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4))
+    assert(combine(leafList) === List(Fork(Leaf('e', 1), Leaf('t', 2), List('e', 't'), 3), Leaf('x', 4)))
   }
 
   test("combine for one element list") {
@@ -132,8 +132,9 @@ class HuffmanSuite extends FunSuite {
 
   test("combine for two element list") {
     new TestTrees {
-      val list = List(t1, t2)
-      assert(combine(list) === list)
+      val leaf1 = Leaf('e', 1)
+      val leaf2 = Leaf('t', 2)
+      assert(combine(List(leaf1, leaf2)) === List(Fork(leaf1, leaf2, List('e', 't'), 3)))
     }
   }
 
@@ -141,9 +142,47 @@ class HuffmanSuite extends FunSuite {
     assert(combine(List()) === List())
   }
 
-  //  test("decode and encode a very short text should be identity") {
-  //    new TestTrees {
-  //      assert(decode(t1, encode(t1)("ab".toList)) === "ab".toList)
-  //    }
-  //  }
+  test("until reduces three leaves") {
+    val threeLeaves = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4))
+    val result = until(singleton, combine)(threeLeaves)
+    assert(singleton(result))
+    assert(chars(result(0)) === List('e', 't', 'x'))
+    assert(weight(result(0)) === 7)
+  }
+
+  test("until reduces two leaves") {
+    val twoLeaves = List(Leaf('e', 1), Leaf('t', 2))
+    val result = until(singleton, combine)(twoLeaves)
+    assert(singleton(result))
+    assert(chars(result(0)) === List('e', 't'))
+    assert(weight(result(0)) === 3)
+  }
+
+  test("until does not affect a single leaf") {
+    val singleLeaf = List(Leaf('e', 1))
+    val result = until(singleton, combine)(singleLeaf)
+    assert(result === singleLeaf)
+  }
+
+  test("until fails for an empty list") {
+    intercept[NoSuchElementException] {
+      until(singleton, combine)(List())
+    }
+  }
+
+  test("createCodeTree produces expected results") {
+    val codeTree = createCodeTree(List('h', 'e', 'l', 'l', 'o', 'w', 'o', 'r', 'l', 'd'))
+    assert(chars(codeTree) === List('e', 'h', 'r', 'w', 'd', 'o', 'l'))
+    assert(weight(codeTree) === 10)
+  }
+
+  test("decoded secret") {
+    assert(decodedSecret === List('h', 'u', 'f', 'f', 'm', 'a', 'n', 'e', 's', 't', 'c', 'o', 'o', 'l'))
+  }
+
+//  test("decode and encode a very short text should be identity") {
+//    new TestTrees {
+//      assert(decode(t1, encode(t1)("ab".toList)) === "ab".toList)
+//    }
+//  }
 }
