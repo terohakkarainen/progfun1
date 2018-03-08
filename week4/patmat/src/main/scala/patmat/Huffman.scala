@@ -240,7 +240,7 @@ object Huffman {
     * the code table `table`.
     */
   def codeBits(table: CodeTable)(char: Char): List[Bit] = {
-    table.find(_._1 == char).get._2
+    table.find(p => p._1 == char).map(p => p._2).getOrElse(Nil)
   }
 
   /**
@@ -251,8 +251,13 @@ object Huffman {
     * a valid code tree that can be represented as a code table. Using the code tables of the
     * sub-trees, think of how to build the code table for the entire tree.
     */
-  def convert(tree: CodeTree): CodeTable = {
-
+  def convert(tree: CodeTree): CodeTable = tree match {
+    case Fork(left, right, chars, weight) => {
+      mergeCodeTables(convert(left), convert(right))
+    }
+    case Leaf(char, weight) => {
+      List((char, List()))
+    }
   }
 
   /**
@@ -260,7 +265,13 @@ object Huffman {
     * use it in the `convert` method above, this merge method might also do some transformations
     * on the two parameter code tables.
     */
-  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = ???
+  def mergeCodeTables(left: CodeTable, right: CodeTable): CodeTable = {
+    def prependAllWithBit(codeTable: CodeTable, bit: Bit): CodeTable = codeTable match {
+      case List() => codeTable
+      case (char, bits) :: nextCodeTable => (char, bit :: bits) :: prependAllWithBit(nextCodeTable, bit)
+    }
+    prependAllWithBit(left, 0) ::: prependAllWithBit(right, 1)
+  }
 
   /**
     * This function encodes `text` according to the code tree `tree`.

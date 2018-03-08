@@ -194,23 +194,37 @@ class HuffmanSuite extends FunSuite {
   }
 
   test("codeBits returns correct bits") {
-    val codeTable = List(('a', List(0, 1, 0)), ('b', List(1,1)))
+    val codeTable = List(('a', List(0, 1, 0)), ('b', List(1, 1)))
     assert(codeBits(codeTable)('a') === List(0, 1, 0))
-    assert(codeBits(codeTable)('b') === List(1,1))
+    assert(codeBits(codeTable)('b') === List(1, 1))
   }
 
   test("codeBits throws exception for non-existing char") {
     val codeTable = List(('a', List(0, 1, 0)))
-    intercept[NoSuchElementException] {
-      codeBits(codeTable)('b')
-    }
+    assert(codeBits(codeTable)('b') === Nil)
   }
 
-  test("convert") {
+  test("convert - t1") {
     new TestTrees {
       val codeTree = convert(t1)
       assert(codeBits(codeTree)('a') == List(0))
       assert(codeBits(codeTree)('b') == List(1))
+    }
+  }
+
+  test("convert - t2") {
+    new TestTrees {
+      val codeTree = convert(t2)
+      assert(codeBits(codeTree)('a') == List(0, 0))
+      assert(codeBits(codeTree)('b') == List(0, 1))
+      assert(codeBits(codeTree)('d') == List(1))
+    }
+  }
+
+  test("quick encode") {
+    new TestTrees {
+      val txt = "abddbaabddbaabddbaabddbaabddbaabddbaabddbaabddbaabddbaabddbaabddba"
+      assert(decode(t2, quickEncode(t2)(txt.toList)) === txt.toList)
     }
   }
 }
