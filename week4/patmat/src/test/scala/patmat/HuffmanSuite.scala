@@ -67,7 +67,7 @@ class HuffmanSuite extends FunSuite {
   }
 
   test("times for many characters") {
-    val result = times(List('h', 'e', 'l', 'l', 'o', 'w', 'o', 'r', 'l', 'd'))
+    val result = times(string2Chars("helloworld"))
     assert(result.size === 7)
     assert(result(0) === ('d', 1))
     assert(result(1) === ('e', 1))
@@ -94,6 +94,10 @@ class HuffmanSuite extends FunSuite {
 
   test("makeOrderedLeafList for single character") {
     assert(makeOrderedLeafList(List(('t', 2))) === List(Leaf('t', 2)))
+  }
+
+  test("makeOrderedLeafList sorts secondarily by char") {
+    assert(makeOrderedLeafList(List(('t', 2), ('s', 2), ('u', 2))) === List(Leaf('s', 2), Leaf('t', 2), Leaf('u', 2)))
   }
 
   test("makeOrderedLeafList for no characters") {
@@ -171,25 +175,25 @@ class HuffmanSuite extends FunSuite {
   }
 
   test("createCodeTree produces expected results") {
-    val codeTree = createCodeTree(List('h', 'e', 'l', 'l', 'o', 'w', 'o', 'r', 'l', 'd'))
-    assert(chars(codeTree) === List('e', 'h', 'r', 'w', 'd', 'o', 'l'))
+    val codeTree = createCodeTree(string2Chars("helloworld"))
+    assert(chars(codeTree) === List('d', 'e', 'h', 'r', 'w', 'o', 'l'))
     assert(weight(codeTree) === 10)
   }
 
   test("decoded secret") {
-    assert(decodedSecret === List('h', 'u', 'f', 'f', 'm', 'a', 'n', 'e', 's', 't', 'c', 'o', 'o', 'l'))
+    assert(decodedSecret === string2Chars("huffmanestcool"))
   }
 
   test("decode and encode a very short text should be identity") {
     new TestTrees {
-      assert(decode(t1, encode(t1)("ab".toList)) === "ab".toList)
+      assert(decode(t1, encode(t1)(string2Chars("ab"))) === string2Chars("ab"))
     }
   }
 
   test("decode and encode a longer short text should be identity") {
     new TestTrees {
       val txt = "abddbaabddbaabddbaabddbaabddbaabddbaabddbaabddbaabddbaabddbaabddba"
-      assert(decode(t2, encode(t2)(txt.toList)) === txt.toList)
+      assert(decode(t2, encode(t2)(string2Chars(txt))) === string2Chars(txt))
     }
   }
 
@@ -221,10 +225,17 @@ class HuffmanSuite extends FunSuite {
     }
   }
 
-  test("quick encode") {
+  test("quick encode - short") {
+    new TestTrees {
+      val txt = "d"
+      assert(decode(t2, quickEncode(t2)(string2Chars(txt))) === string2Chars(txt))
+    }
+  }
+
+  test("quick encode - longer") {
     new TestTrees {
       val txt = "abddbaabddbaabddbaabddbaabddbaabddbaabddbaabddbaabddbaabddbaabddba"
-      assert(decode(t2, quickEncode(t2)(txt.toList)) === txt.toList)
+      assert(decode(t2, quickEncode(t2)(string2Chars(txt))) === string2Chars(txt))
     }
   }
 }
